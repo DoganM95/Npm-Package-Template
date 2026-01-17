@@ -1,0 +1,82 @@
+name: Publish to GitHub Packages
+
+on:
+    push:
+        paths-ignore:
+            - "README.md" # Ignore changes to README.md
+        branches-ignore:
+            - "*dependabot*" # Ignore branches containing "dependabot"
+    workflow_dispatch:
+
+jobs:
+    publish:
+        runs-on: ubuntu-latest
+        permissions:
+            contents: write
+            packages: write
+
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v6
+              with:
+                  token: ${{ secrets.GITHUB_TOKEN }}
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v6
+              with:
+                  node-version: 24
+                  registry-url: https://npm.pkg.github.com
+
+            - name: Configure npm auth for GitHub Packages
+              run: |
+                  echo "@${{ github.repository_owner }}:registry=https://npm.pkg.github.com/" > .npmrc
+                  echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" >> .npmrc
+
+            - name: Compute lowercase package name and owner
+              run: |
+                  REPO_NAME="${{ github.event.repository.name }}"
+                  OWNER="${{ github.repository_owner }}"
+                  PACKAGE_NAME=$(echo "$REPO_NAME" | tr '[:upper:]' '[:lower:]')
+                  OWNER_LOWER=$(echo "$OWNER" | tr '[:upper:]' '[:lower:]')
+                  echo "PACKAGE_NAME=$PACKAGE_NAME" >> $GITHUB_ENV
+                  echo "OWNER_LOWER=$OWNER_LOWER" >> $GITHUB_ENV
+
+            - name: Ensure package.json has correct lowercase name & publishConfig
+              run: |
+                  node -e "
+                    const fs = require('fs');
+                    const pkg = require('./package.json');
+                    pkg.name = '@' + process.env.OWNER_LOWER + '/' + process.env.PACKAGE_NAME;
+                    pkg.publishConfig = { registry: 'https://npm.pkg.github.com' };
+                    fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2));
+                  "
+                  git config user.name "github-actions"
+                  git config user.email "github-actions@github.com"
+                  git add package.json
+                  git commit -m "ci: ensure package.json has correct lowercase name & publishConfig [skip ci]" || echo "No changes to commit"
+
+            - name: Install dependencies
+              run: npm ci
+
+            - name: Publish package
+              run: |
+                  PACKAGE="@${OWNER_LOWER}/${PACKAGE_NAME}"
+
+                  echo "Checking if $PACKAGE exists on GitHub Packages..."
+                  if npm view "$PACKAGE" --registry=https://npm.pkg.github.com > /dev/null 2>&1; then
+                      echo "Package exists, bumping patch version"
+                      git config user.name "github-actions"
+                      git config user.email "github-actions@github.com"
+                      npm version patch -m "ci: bump version to %s [skip ci]"
+                      git push origin HEAD:refs/heads/master
+                      npm publish --tag latest
+                  else
+                      echo "Package does NOT exist — initializing at 1.0.0"
+                      node -e "
+                          const fs = require('fs');
+                          const pkg = require('./package.json');
+                          pkg.version = '1.0.0';
+                          fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2));
+                      "
+                      npm publish --tag latest
+                  fi
