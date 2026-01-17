@@ -10,6 +10,7 @@ Derive javascript projects from this template, that get published as npm package
 - Repository name is turned into lowercase and taken as the npm package name
 - Publishes the NPM package into you github repository
 - Chages to `Readme.md` do not trigger a version bump
+- Allows version pinning and usage of `@latest`
 
 # Setup
 
