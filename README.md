@@ -14,6 +14,7 @@ Derive javascript projects from this template, that get published as npm package
 # Setup
 
 - Derive a repo using this template
+- Change Workflow permissions to `Read and write permissions` in Settings -> Actions -> General -> Workflow permissions
 - Update the package.json to fit your project
 - Set package.json version to 1.0.0 initially
 - Push your first commit & see the created npm package
