@@ -1,14 +1,15 @@
 # Intro
 
-Derive javascript projects from this template, that get published as npm packages automatically by github actions. Each push triggers a bump in patch digit of (semantic) version, e.g. (1.0.X). Minor & Major version bumps have to be done manually. This template and actions use best practices [docs.github.com/en/packages](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-npm-registry) to ensure security & convenience, by using the implicit github secret of a repository.
+Derive javascript projects from this template, that get published as npm packages automatically by github actions. Each push triggers a bump in patch digit of (semantic) version, e.g. `1.0.X`. Minor & Major version bumps have to be done manually. This template and actions use best practices [docs.github.com/en/packages](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-npm-registry) to ensure security & convenience, by using the implicit github secret of a repository.
 
 # Features
 
 - Initial push creates an npm packages with version 1.0.0
 - Subsequent pushes increase the patch version 1.0.X by 1 each time
-- Major (X.0.0) & Minor (0.X.0) versions are up to you
+- Major `X.0.0` & Minor `0.X.0` versions are up to you
 - Repository name is turned into lowercase and taken as the npm package name
 - Publishes the NPM package into you github repository
+- Chages to `Readme.md` do not trigger a version bump
 
 # Setup
 
