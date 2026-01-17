@@ -31,7 +31,7 @@ If a private repository is derived from the template, the package also stays pri
 //npm.pkg.github.com/:_authToken=ghp_...
 ```
 
-The `authToken` needs to be created on github and needs the rights to read packages to work, npm packages will install perfectly afterwards, like:
+Update `YourUserName` to yours. `authToken` needs to be created on github and needs the rights to read packages to work, npm packages will install perfectly afterwards, like:
 
 ```
 npm install @doganm95/npm-package-template
