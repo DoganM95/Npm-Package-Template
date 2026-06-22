@@ -1,6 +1,6 @@
 {
   "name": "@doganm95/npm-package-template",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
